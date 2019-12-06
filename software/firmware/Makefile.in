@@ -1,0 +1,25 @@
+MAKE		= make -r
+OBJCOPY		= objcopy
+WCC			= wcc
+WASM		= wasm
+WLINK		= wlink
+DEL			= rm
+COPY		= cp
+COMMA		= ,
+
+default :
+	$(MAKE) rom
+
+rom : $(OBJS_TARGET) Makefile
+	$(MAKE) -C ../icrt
+	$(WLINK) $(LFLAGS) FILE $(subst .o,.o$(COMMA),$(OBJS_TARGET)) ../icrt/icrt0.o NAME $(TARGET).rom
+	$(COPY) $(TARGET).rom ../../roms
+
+clean :
+	-$(DEL) *.o
+
+%.o : %.c Makefile
+	$(WCC) $(CFLAGS) -fo=$*.o $*.c
+
+%.o : %.s Makefile
+	$(WASM) $(ASFLAGS) -fo=$*.o $*.s
