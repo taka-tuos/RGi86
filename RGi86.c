@@ -210,12 +210,12 @@ int v30_loadrom(e8086_t *v30)
 		exit(-1);
 	}
 	
-	fread(mem_v30+0x10000,65536,1,romfile);
+	fread(mem_v30+0x10000,1,65536,romfile);
 	fclose(romfile);
 
 	e86_set_cs(v30,0x1000);
 	e86_set_ip(v30,0x0000);
-	e86_set_sp(v30, 0xfffe);
+	e86_set_sp(v30,0xfffe);
 
 	return 1;
 }
@@ -228,6 +228,7 @@ int main(int argc, char **argv) {
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_TIMER)) exit(1);
 	
 	SDL_WM_SetCaption("RGi86",NULL);
+	
 	SDL_WM_SetIcon(SDL_LoadBMP("favicon.bmp"),NULL);
 	
 	libini_iniopen("config.ini");
@@ -237,7 +238,7 @@ int main(int argc, char **argv) {
 	ini_mhz = libini_iniread_n("cpucycle");
 	ini_sblen = libini_iniread_n("soundbuffer");
 	
-	puts("RGi86 alpha 0.10.0 " __DATE__ " build by daretoku_taka");
+	puts("RGi86-git " __DATE__ " build by kagura1050");
 
 	// <cpuinfo>
 	printf("CPU Extensions : ");
@@ -250,12 +251,21 @@ int main(int argc, char **argv) {
 	if(SDL_HasSSE2())		printf("SSE2 ");
 	if(SDL_HasAltiVec())	printf("AltiVec ");
 	printf("\n");
+	
+	if(ini_x2s == 1) {
+		sdl_screen_m = SDL_SetVideoMode(SCRN_X*2,SCRN_Y*2,32,SDL_SWSURFACE);
+		sdl_screen = SDL_CreateRGBSurface(SDL_SWSURFACE,320,200,32,0xff0000,0x00ff00,0x0000ff,0xff0000);
+	} else {
+		sdl_screen = SDL_SetVideoMode(SCRN_X,SCRN_Y,32,SDL_SWSURFACE);
+	}
 
 	v30 = e86_new();
 	
 	mem_v30 = (unsigned char *)malloc(1024*1024);
 	
 	libgpu_init();
+	init_audio();
+	init_graphic(mem_v30, sdl_screen);
 
 	e86_init(v30);
 	e86_set_8086(v30);
@@ -263,16 +273,15 @@ int main(int argc, char **argv) {
 	v30_setup_callbacks(v30);
 	e86_reset(v30);
 	
-	int stc = SDL_GetTicks();
-	int fc = stc;
+	v30_loadrom(v30);
+	
+	int fc = SDL_GetTicks();
 	int frame = 0;
 	int sframe = 0;
 	int stime = SDL_GetTicks();
 	int errfps = 0;
 
 	while(!poll_event(&sdl_event)) {
-		fps_flag = 1;
-		stc = SDL_GetTicks();
 		refresh_graphic(sdl_screen, mem_v30);
 		if(ini_x2s == 1) {
 			if(ini_hq != 0) SDL_sx2Surface(sdl_screen_m,sdl_screen);
@@ -286,7 +295,7 @@ int main(int argc, char **argv) {
 		Uint8 *keystate = SDL_GetKeyState(NULL);
 
 		if ((keystate[SDLK_LCTRL] || keystate[SDLK_RCTRL]) && keystate[SDLK_o]) {
-			init_pcm();
+			init_audio();
 			init_graphic(mem_v30, sdl_screen);
 
 			e86_reset(v30);
@@ -295,14 +304,14 @@ int main(int argc, char **argv) {
 		}
 
 		if ((keystate[SDLK_LCTRL] || keystate[SDLK_RCTRL]) && keystate[SDLK_r]) {
-			init_pcm();
+			init_audio();
 			init_graphic(mem_v30, sdl_screen);
 
 			e86_reset(v30);
 
-			e86_set_cs(v30, 0x1000);
-			e86_set_ip(v30, 0x0000);
-			e86_set_sp(v30, 0xfffe);
+			e86_set_cs(v30,0x1000);
+			e86_set_ip(v30,0x0000);
+			e86_set_sp(v30,0xfffe);
 		}
 
 		v30_execute(v30);
@@ -311,7 +320,7 @@ int main(int argc, char **argv) {
 		if((SDL_GetTicks() - fc) >= 1000) {
 			fc = SDL_GetTicks();
 			char fss[256];
-			sprintf(fss,"Xstation86 - %d fps %.1f MHz",frame, (float)sclk/1000.0f/1000.0f);
+			sprintf(fss,"Xstation86 - %d fps %.1f MHz",frame,(float)sclk/1000.0f/1000.0f);
 			SDL_WM_SetCaption(fss,NULL);
 			frame = 0;
 			sclk = 0;

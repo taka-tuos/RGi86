@@ -1,20 +1,16 @@
 #include "libgpu.h"
 
-static char *font6x8;
-static char *font8x8;
+static char *libgpu_font6x8;
 
 void libgpu_init(void)
 {
-	FILE *fp0 = fopen("932-6x8a.bin","rb");
-	FILE *fp1 = fopen("932-8x8j.bin","rb");
+	FILE *fp0 = fopen("6x8.dat","rb");
 
-	font6x8 = (char *)malloc(2048);
-	font8x8 = (char *)malloc(65536);
-
-	fread(font6x8,sizeof(char),2048,fp0);
-	fread(font8x8,sizeof(char),65536,fp1);
+	libgpu_font6x8 = (char *)malloc(2048);
+	
+	fread(libgpu_font6x8,sizeof(char),2048,fp0);
+	
 	fclose(fp0);
-	fclose(fp1);
 }
 
 
@@ -41,39 +37,11 @@ void libgpu_putc(SDL_Surface *sdl_screen, int x, int y, int c, char *font)
 	return;
 }
 
-void libgpu_puts(SDL_Surface *sdl_screen, int x, int y, int c, char *sz)
+void libgpu_puts(SDL_Surface *sdl_screen, int x, int y, int c, char *s)
 {
-	char *font;
-	unsigned char *s = (unsigned char *)sz;
-	int k,t;
-	int langbyte1 = 0;
-	
 	for (; *s != 0x00; s++) {
-		if (langbyte1 == 0) {
-			if((0x81 <= *s && *s <= 0x9f) || (0xe0 <= *s && *s <= 0xfc)) {
-				langbyte1 = *s;
-			} else {
-				libgpu_putc(sdl_screen, x, y, c, font6x8 + *s * 8);
-				x += 6;
-			}
-		} else {
-			if(0x81 <= langbyte1 && langbyte1 <= 0x9f) {
-				k = (langbyte1 - 0x81) * 2;
-			} else {
-				k = (langbyte1 - 0xe0) * 2 + 62;
-			}
-			if(0x40 <= *s && *s <= 0x7e) {
-				t = *s - 0x40;
-			} else if (0x80 <= *s && *s <= 0x9e) {
-				t = *s - 0x80 + 63;
-			} else {
-				t = *s - 0x9f;
-				k++;
-			}
-			langbyte1 = 0;
-			libgpu_putc(sdl_screen, x, y, c, font8x8 + (k * 94 + t) * 8);
-			x += 8;
-		}
+		libgpu_putc(sdl_screen, x, y, c, libgpu_font6x8 + *s * 8);
+		x += 6;
 	}
 	return;
 }

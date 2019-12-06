@@ -12,7 +12,7 @@ default :
 
 rom : $(OBJS_TARGET) Makefile
 	$(MAKE) -C ../icrt
-	$(WLINK) $(LFLAGS) FILE $(subst .o,.o$(COMMA),$(OBJS_TARGET)) ../icrt/icrt0.o NAME $(TARGET).rom
+	$(WLINK) $(LFLAGS) FILE  ../icrt/icrt0.o $(patsubst %.o,FILE %.o,$(OBJS_TARGET)) NAME $(TARGET).rom
 	$(COPY) $(TARGET).rom ../../roms
 
 clean :

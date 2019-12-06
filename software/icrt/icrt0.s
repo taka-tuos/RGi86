@@ -5,7 +5,6 @@ _TEXT	segment byte use16 'CODE'
 public	crtmain
 extrn	kernel_main_ : proc
 	assume cs:_TEXT, ds:_DATA
-	org 100h
 crtmain proc
 	mov		ax,cs
 	mov		ds,ax
