@@ -43,7 +43,7 @@ void refresh_graphic(SDL_Surface *sdl_screen, unsigned char *mem_v30)
 	
 	for(y = 0; y < SCRN_Y/8; y++) {
 		for(x = 0; x < SCRN_X/8; x++) {
-			int pix = ((uint16_t *)(mem_v30+0xb8000))[ + y * (SCRN_X/8) + x] & 0xff;
+			int pix = ((uint8_t *)(mem_v30+0xb8000))[y * (SCRN_X/8) + x];
 			libgpu_putc(sdl_screen,x*8,y*8,0xffffff,font6x8 + pix * 8);
 		}
 	}

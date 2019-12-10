@@ -254,7 +254,7 @@ int main(int argc, char **argv) {
 	
 	if(ini_x2s == 1) {
 		sdl_screen_m = SDL_SetVideoMode(SCRN_X*2,SCRN_Y*2,32,SDL_SWSURFACE);
-		sdl_screen = SDL_CreateRGBSurface(SDL_SWSURFACE,320,200,32,0xff0000,0x00ff00,0x0000ff,0xff0000);
+		sdl_screen = SDL_CreateRGBSurface(SDL_SWSURFACE,SCRN_X,SCRN_Y,32,0xff0000,0x00ff00,0x0000ff,0xff0000);
 	} else {
 		sdl_screen = SDL_SetVideoMode(SCRN_X,SCRN_Y,32,SDL_SWSURFACE);
 	}

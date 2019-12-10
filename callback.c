@@ -14,6 +14,7 @@ extern unsigned char *mem_v30;
 
 void v30_read_memory(void* _ctx,unsigned int address,unsigned char *buf,int size)
 {
+	//if(address >= 0x10000 && address < 0x1F000) printf("DEBUG : %05x\n",address);
 	memcpy(buf,mem_v30+(address&0xfffff),size);
 }
 

@@ -1,9 +1,21 @@
+#include "xprintf.h"
+
+unsigned char far *p;
+
+void outc(unsigned char c) {
+	*p++ = c;
+}
+
 int kernel_main(void)
 {
-	char *s = "Hello,World!";
+	char *s = "hello,world";
 	int i;
 	
-	for(i=0;s[i];i++) ((unsigned short far *)0xb8000000)[i] = s[i] | (0x07 << 8);
+	p = (unsigned char far *)0xb8000000;
+	
+	xdev_out(outc);
+	
+	xprintf("hello,world %d",0);
 	
 	for(;;);
 }

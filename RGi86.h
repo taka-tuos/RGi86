@@ -10,8 +10,8 @@ int poll_event(SDL_Event *sdl_event);
 void v30_setup_callbacks(e8086_t *v30);
 
 // Graphics
-#define SCRN_X	320
-#define	SCRN_Y	200
+#define SCRN_X	640
+#define	SCRN_Y	480
 void init_graphic(unsigned char *mem_v30, SDL_Surface *sdl_screen);
 void refresh_graphic(SDL_Surface *sdl_screen, unsigned char *mem_v30);
 

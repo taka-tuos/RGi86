@@ -9,8 +9,11 @@ crtmain proc
 	mov		ax,cs
 	mov		ds,ax
 	mov		es,ax
+	
+	mov		ax,seg _STACK
 	mov		ss,ax
 	mov		sp,0xfffe
+	
 	call	kernel_main_
 crtmain endp
 
